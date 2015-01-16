@@ -191,7 +191,6 @@
     function onEvent(type) {
       var responseText = currentState === OPEN || currentState === CONNECTING ? xhr.responseText : "";
       var event = undefined;
-      var isWrongStatusCodeOrContentType = false;
 
       if (currentState === CONNECTING) {
         var status = 0;
@@ -251,7 +250,6 @@
             setTimeout(function () {
               throw new Error(message);
             }, 0);
-            isWrongStatusCodeOrContentType = true;
           }
         }
       }
@@ -337,27 +335,25 @@
       }
 
       if ((currentState === OPEN || currentState === CONNECTING) &&
-          (type === "load" || type === "error" || isWrongStatusCodeOrContentType || (charOffset > 1024 * 1024) || (timeout === 0 && !wasActivity))) {
-        if (isWrongStatusCodeOrContentType) {
-          close();
-        } else {
-          currentState = WAITING;
-          xhr.abort();
-          if (timeout !== 0) {
-            clearTimeout(timeout);
-            timeout = 0;
-          }
-          if (retry > initialRetry * 16) {
-            retry = initialRetry * 16;
-          }
-          if (retry > MAXIMUM_DURATION) {
-            retry = MAXIMUM_DURATION;
-          }
-          timeout = setTimeout(onTimeout, retry);
-          retry = retry * 2 + 1;
+          (type === "load" || type === "error" || (charOffset > 1024 * 1024) || (timeout === 0 && !wasActivity))) {
 
-          that.readyState = CONNECTING;
+        currentState = WAITING;
+        xhr.abort();
+        if (timeout !== 0) {
+          clearTimeout(timeout);
+          timeout = 0;
         }
+        if (retry > initialRetry * 16) {
+          retry = initialRetry * 16;
+        }
+        if (retry > MAXIMUM_DURATION) {
+          retry = MAXIMUM_DURATION;
+        }
+        timeout = setTimeout(onTimeout, retry);
+        retry = retry * 2 + 1;
+
+        that.readyState = CONNECTING;
+
         event = new Event("error");
         that.dispatchEvent(event);
         fire(that, that.onerror, event);
