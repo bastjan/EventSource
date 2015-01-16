@@ -116,7 +116,7 @@ function onRequest(request, response) {
   var time = "";
   var data = "";
 
-  if (query.message) {
+  if (query && query.message) {
     time = new Date();
     data = "[" + time.toISOString() + "][IP: " + request.connection.remoteAddress + "] " + query.message;
     response.writeHead(200, {
