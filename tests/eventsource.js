@@ -240,16 +240,14 @@
             return;
           }
         } else {
-          if (status !== 0) {
-            var message = "";
-            if (status !== 200) {
-              message = "EventSource's response has a status " + status + " " + statusText.replace(/\s+/g, " ") + " that is not 200. Aborting the connection.";
-            } else {
-              message = "EventSource's response has a Content-Type specifying an unsupported type: " + contentType.replace(/\s+/g, " ") + ". Aborting the connection.";
-            }
-            setTimeout(function () {
-              throw new Error(message);
-            }, 0);
+          if (status !== 0 && type !== "progress") {
+            console.warn(
+                status !== 200
+              ?
+                "EventSource's response has a status " + status + " " + statusText.replace(/\s+/g, " ") + " that is not 200. Aborting the connection."
+              :
+                "EventSource's response has a Content-Type specifying an unsupported type: " + contentType.replace(/\s+/g, " ") + ". Aborting the connection."
+            )
           }
         }
       }
